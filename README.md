@@ -1,6 +1,11 @@
 # Night Owls Detector
 
-[TODO. There will be project description]
+Simple program for counting people, who validated his task after midnight.
+
+```#!bash
+$ python seek_dev_nighters.py
+There are 23 night owls on the DEVMAN web site.
+```
 
 # Project Goals
 
