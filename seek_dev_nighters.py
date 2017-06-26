@@ -9,8 +9,8 @@ import time
 
 def get_number_of_pages():
     url = 'https://devman.org/api/challenges/solution_attempts/?page=1'
-    data = json.loads(requests.get(url).text)
-    return data['number_of_pages']
+    parsed_page = json.loads(requests.get(url).text)
+    return parsed_page['number_of_pages']
 
 
 def acquire_urls(number_of_pages):
