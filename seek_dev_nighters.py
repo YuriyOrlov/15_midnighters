@@ -40,11 +40,13 @@ def get_midnighter(item):
     end = datetime.time(6, 00)
     user_time = get_tz_and_datetime_obj(item['timezone'], item['timestamp'])
     time_comparison = time_is_in_range(start, end, user_time) if user_time else None
-    return time_comparison if time_comparison is True else None
+    return time_comparison if bool(time_comparison) else None
+    # return time_comparison if time_comparison is True else None
 
 
 def count_users():
     urls = acquire_urls()
+    print(urls)
     lists_of_records = parallel_computing(get_page, urls)
     concatenated_list = list(chain.from_iterable(lists_of_records))
     checked_users = parallel_computing(get_midnighter, concatenated_list)
