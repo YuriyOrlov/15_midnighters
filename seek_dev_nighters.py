@@ -1,31 +1,23 @@
 import requests
-from multiprocessing import Pool, cpu_count
-import json
+from multiprocessing import Pool
 from itertools import chain
 import pytz
 import datetime
-import time
 
 
-def get_number_of_pages():
+def acquire_urls():
     url = 'https://devman.org/api/challenges/solution_attempts/?page=1'
-    parsed_page = json.loads(requests.get(url).text)
-    return parsed_page['number_of_pages']
-
-
-def acquire_urls(number_of_pages):
-    url = 'https://devman.org/api/challenges/solution_attempts/?page='
+    parsed_page = requests.get(url).json()
+    number_of_pages = parsed_page['number_of_pages']
     return ['{}{}'.format(url, number) for number in range(1, number_of_pages)]
 
 
 def get_page(url):
-    time.sleep(0.1)
-    page = json.loads(requests.get(url).text)
+    page = requests.get(url).json()
     return page['records']
 
 
-def parallel_computing(func, iterable):
-    num_of_parallel_processes = cpu_count() * 2
+def parallel_computing(func, iterable, num_of_parallel_processes=8):
     pool = Pool(num_of_parallel_processes)
     return pool.map(func, iterable)
 
@@ -52,8 +44,7 @@ def get_midnighter(item):
 
 
 def count_users():
-    number_of_pages = get_number_of_pages()
-    urls = acquire_urls(number_of_pages)
+    urls = acquire_urls()
     lists_of_records = parallel_computing(get_page, urls)
     concatenated_list = list(chain.from_iterable(lists_of_records))
     checked_users = parallel_computing(get_midnighter, concatenated_list)
