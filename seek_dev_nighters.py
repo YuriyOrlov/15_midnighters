@@ -5,16 +5,11 @@ import pytz
 import datetime
 
 
-def acquire_urls():
-    url = 'https://devman.org/api/challenges/solution_attempts/?page=1'
-    parsed_page = requests.get(url).json()
-    number_of_pages = parsed_page['number_of_pages']
-    return ['{}{}'.format(url, number) for number in range(1, number_of_pages)]
-
-
-def get_page(url):
-    page = requests.get(url).json()
-    return page['records']
+def get_pages(num_of_pages):
+    url = 'https://devman.org/api/challenges/solution_attempts/?'
+    payload = [{'page': num} for num in num_of_pages]
+    pages = [requests.get(url, params=item).json() for item in payload]
+    return [page['records'] for page in pages]
 
 
 def parallel_computing(func, iterable, num_of_parallel_processes=8):
@@ -39,18 +34,15 @@ def get_midnighter(item):
     start = datetime.time(0, 00)
     end = datetime.time(6, 00)
     user_time = get_tz_and_datetime_obj(item['timezone'], item['timestamp'])
-    time_comparison = time_is_in_range(start, end, user_time) if user_time else None
-    return time_comparison if bool(time_comparison) else None
-    # return time_comparison if time_comparison is True else None
+    return time_is_in_range(start, end, user_time) if user_time else None
 
 
 def count_users():
-    urls = acquire_urls()
-    print(urls)
-    lists_of_records = parallel_computing(get_page, urls)
+    number_of_pages = list(range(1, 11))
+    lists_of_records = get_pages(number_of_pages)
     concatenated_list = list(chain.from_iterable(lists_of_records))
     checked_users = parallel_computing(get_midnighter, concatenated_list)
-    return len([user for user in checked_users if user is True])
+    return len([user for user in checked_users if bool(user)])
 
 
 if __name__ == '__main__':
